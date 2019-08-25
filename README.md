@@ -20,14 +20,14 @@ By default the disassembler will assume that the input begins at address 0 and t
 Example map file:
 
 	romstart = FC0000
-	FC0000,FC0030,data
-	FC0030,FF0000,code
+	FC0000,FC002F,byte
+	FC0030,FEFFFF,code
 	
 This says:
 
 1. the input file data should be located at address `FC0000`;
-2. treat the region starting at `FF0000` and ending just before `FC0030` as data;
-3. treat the region starting at `FC0030` and ending just before `FF0000` as code.
+2. treat the region starting at `FF0000` and ending at `FC002F` as data;
+3. treat the region starting at `FC0030` and ending at `FEFFFF` as code.
 
 Map files are specified to the disassembler using the `-m` option, e.g.
 

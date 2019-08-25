@@ -1206,11 +1206,11 @@ void datadump(uint32_t start, uint32_t end) {
 		exit(EXIT_FAILURE);
 	}
 
-	while (!feof(stdin) && (address < end)) {
+	while (!feof(stdin) && (address <= end)) {
 		printf("%08x : ", address);
 
-		const uint32_t reamaining_bytes = end - address;
-		const int  bytes_to_print = (reamaining_bytes > 16) ? 16 : reamaining_bytes;
+		const uint32_t remaining_bytes = end - address + 1;
+		const int  bytes_to_print = (remaining_bytes > 16) ? 16 : remaining_bytes;
 
 		int toprint[16] ;
 		for (int i = 0; i < 16; ++i) {
