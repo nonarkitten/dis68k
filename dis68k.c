@@ -1344,7 +1344,7 @@ int main(int argc, char *argv[]) {
             printf("Map files should have as their first line:\n");
             printf("romstart = x\n");
             printf("... indicating a starting address in hexadecimal. From there put lines of the form:\n");
-            printf("<start>,<end>,[code/data]\n");
+            printf("<start>,[code/byte/word/long/text/rsvd]\n");
             printf("... to demark sections of code or data. The start and end addresses should be in hexadecimal.\n");
             return EXIT_SUCCESS;
         }
