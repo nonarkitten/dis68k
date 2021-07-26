@@ -55,7 +55,8 @@ const struct OpcodeDetails optab[88] = {
     {0xFFF0,0x4E40}, {0xFFFF,0x4E76}, {0xFF00,0x4A00}, {0xFFF8,0x4E58}
 };
 
-uint32_t address, romstart;
+uint32_t address;
+uint32_t romstart;
 bool rawmode = false;
 
 struct MapEntry {
@@ -106,69 +107,70 @@ bool readmap(const char *filename) {
         map[0].start = 0L;
         map[0].type = Code;
         map[1].type = End;
-    } else {
-        if (!fscanf(fmap,"romstart = %X", &romstart)) {
-            fprintf(stderr, "Error in romstart = line!\n");
-            return false;
-        }
-
-        size_t index = 0;
-
-        while (true) {
-            uint32_t start;
-            char type[10];
-
-            const int items_read = fscanf(fmap, "%x,%9s", &start, type);
-            if (items_read == 2) {
-                if (index+1 >= allocated_map_size) {
-                    // Default to 16 entries when first creating a map, double each time the existing
-                    // estimate isn't enough for both this entry and the terminator yet to come.
-                    const size_t new_map_size = allocated_map_size ? (allocated_map_size * 2) : 16;
-                    map = realloc(map, sizeof(struct MapEntry) * new_map_size);
-                    allocated_map_size = new_map_size;
-                    if (!map) {
-                        fprintf(stderr, "Couldn't allocate enough space for map\n");
-                        return false;
-                    }
-                }
-
-                map[index].start = start;
-                map[index].type = Unknown;
-                if (strcmp(type,"byte")==0) map[index].type = Byte;
-                if (strcmp(type,"word")==0) map[index].type = Word;
-                if (strcmp(type,"long")==0) map[index].type = Long;
-                if (strcmp(type,"text")==0) map[index].type = Text;
-                if (strcmp(type,"rsvd")==0) map[index].type = Rsvd;
-                if (strcmp(type,"code")==0) map[index].type = Code;
-                if (strcmp(type,"end")==0)  map[index].type = End;
-
-                if (map[index].type == Unknown) {
-                    fprintf(stderr, "Couldn't parse type '%s' in map file at line %lu\n", type, index+2);
-                    return false;
-                }
-
-                if ((map[index].type == Word || map[index].type == Long) &&
-                    map[index].start & 1)
-                {
-                    fprintf(stderr, "Address block %06x must be word aligned in line %ld\n",
-                            map[index].start, index);
-                    return false;
-                }
-
-                ++ index;
-            } else {
-                if (items_read > 0) {
-                    fprintf(stderr, "Syntax error on line %lu (%d)\n", index+2, items_read);
-                    return false;
-                }
-                break;  // i.e. feof.
-            }
-        }
-
-        map[index].start = 0xffffffff;
-        map[index].type = End;
-        fclose(fmap);
+        return true;
     }
+
+    if (!fscanf(fmap,"romstart = %X", &romstart)) {
+        fprintf(stderr, "Error in romstart = line!\n");
+        return false;
+    }
+
+    size_t index = 0;
+
+    while (true) {
+        uint32_t start;
+        char type[10];
+
+        const int items_read = fscanf(fmap, "%x,%9s", &start, type);
+        if (items_read == 2) {
+            if (index+1 >= allocated_map_size) {
+                // Default to 16 entries when first creating a map, double each time the existing
+                // estimate isn't enough for both this entry and the terminator yet to come.
+                const size_t new_map_size = allocated_map_size ? (allocated_map_size * 2) : 16;
+                map = realloc(map, sizeof(struct MapEntry) * new_map_size);
+                allocated_map_size = new_map_size;
+                if (!map) {
+                    fprintf(stderr, "Couldn't allocate enough space for map\n");
+                    return false;
+                }
+            }
+
+            map[index].start = start;
+            map[index].type = Unknown;
+            if (strcmp(type,"byte")==0) map[index].type = Byte;
+            if (strcmp(type,"word")==0) map[index].type = Word;
+            if (strcmp(type,"long")==0) map[index].type = Long;
+            if (strcmp(type,"text")==0) map[index].type = Text;
+            if (strcmp(type,"rsvd")==0) map[index].type = Rsvd;
+            if (strcmp(type,"code")==0) map[index].type = Code;
+            if (strcmp(type,"end")==0)  map[index].type = End;
+
+            if (map[index].type == Unknown) {
+                fprintf(stderr, "Couldn't parse type '%s' in map file at line %lu\n", type, index+2);
+                return false;
+            }
+
+            if ((map[index].type == Word || map[index].type == Long) &&
+                map[index].start & 1)
+            {
+                fprintf(stderr, "Address block %06x must be word aligned in line %ld\n",
+                        map[index].start, index);
+                return false;
+            }
+
+            ++ index;
+        } else {
+            if (items_read > 0) {
+                fprintf(stderr, "Syntax error on line %lu (%d)\n", index+2, items_read);
+                return false;
+            }
+            break;  // i.e. feof.
+        }
+    }
+
+    map[index].start = 0xffffffff;
+    map[index].type = End;
+    fclose(fmap);
 
     return true;
 }
@@ -1206,7 +1208,7 @@ void disasm(unsigned long int start, unsigned long int end) {
         if (!rawmode) {
             for (int i = 0 ; i < (5 - fetched); ++i) printf("     ");
         }
-        if (decoded != 0) {
+        if (decoded) {
             printf("%-8s %s\n", opcode_s, operand_s);
         } else {
             printf("???\n");
