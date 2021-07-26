@@ -4,9 +4,16 @@ _dis68k_ is a public domain disassembler for the 68000 by W. de Waal,
 originally developed in 1991 and written in era-appropriate unstandardised C.
 It was released into the public domain in 1993.
 
-This fork of dis68k was forked from the fork created by Thomas Harte. The
-Thomas Harte fork seeked to modernise the original source code written by
-W. de Waal:
+This fork of dis68k was created by Kevin Cozens from the Thomas Harte fork.
+The following changes were made:
+* map files only need the region start address
+* added more region types
+* outputs a warning if regions overlap
+* generated op-codes line up properly
+* fixed some bugs including one that locked up the program
+
+The Thomas Harte fork seeked to modernise the original source code written
+by W. de Waal:
 * to ensure that it builds with modern compilers;
 * to give it normative command-line invocation; and
 * where possible, to adapt the code to utilise more modern language constructs.
@@ -17,7 +24,7 @@ W. de Waal:
 
 This disassembler reads from stdin and writes to stdout. You can therefore
 use the usual means of composition to disassemble directly from compressed
-files and/or to compress the output: `zcar file.gz | dis68k > disassembly.txt`
+files and/or to compress the output: `zcat file.gz | dis68k > disassembly.txt`
 or similar.
 
 By default the disassembler will assume that the input begins at address 0
