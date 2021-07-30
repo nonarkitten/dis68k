@@ -995,13 +995,13 @@ void disasm(unsigned long int start, unsigned long int end) {
                             }
                             if ((rlist[i] == 1) && (rlist[i+1] == 0)) {
                                 char temp_s[50];
-                                sprintf(temp_s, "D%i,", i-1);
+                                sprintf(temp_s, "D%i/", i-1);
                                 strcat(source_s, temp_s);
                             }
                             if ((rlist[i-1] == 0) && (rlist[i] == 1) &&
                                 (rlist[i+1] == 1) && (rlist[i+2] == 0)) {
                                 char temp_s[50];
-                                sprintf(temp_s, "D%i,", i-1);
+                                sprintf(temp_s, "D%i/", i-1);
                                 strcat(source_s, temp_s);
                             }
                         }
@@ -1025,25 +1025,24 @@ void disasm(unsigned long int start, unsigned long int end) {
                             }
                             if ((rlist[i] == 1) && (rlist[i+1] == 0)) {
                                 char temp_s[50];
-                                sprintf(temp_s, "A%i,", i - 1);
+                                sprintf(temp_s, "A%i/", i - 1);
                                 strcat(source_s, temp_s);
                             }
                             if ((rlist[i-1] == 0) && (rlist[i] == 1) &&
                                 (rlist[i+1] == 1) && (rlist[i+2] == 0)) {
                                 char temp_s[50];
-                                sprintf(temp_s,"A%i,", i - 1);
+                                sprintf(temp_s,"A%i/", i - 1);
                                 strcat(source_s, temp_s);
                             }
                         }
 
                         sprintf(opcode_s, "MOVEM.%c", size_arr[size]);
                         sprintmode(dmode, dreg, size, dest_s);
+
+                        source_s[strlen(source_s)-1] = '\0'; /* remove trailing / */
                         if (dir == 0) {
-                            /* the comma comes from the reglist */
-                            sprintf(operand_s, "%s%s", source_s, dest_s);
+                            sprintf(operand_s, "%s,%s", source_s, dest_s);
                         } else {
-                            /* add the comma */
-                            source_s[strlen(source_s)-1] = ' '; /* and remove the other one */
                             sprintf(operand_s, "%s,%s", dest_s, source_s);
                         }
                         decoded = true;
