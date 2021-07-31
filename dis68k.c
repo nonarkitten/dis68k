@@ -1172,7 +1172,7 @@ void disasm(unsigned long int start, unsigned long int end) {
                     case 84 : { /* TRAP */
                         const int dreg = word & 0x000F;
                         sprintf(opcode_s, "TRAP");
-                        sprintf(operand_s, "%i", dreg);
+                        sprintf(operand_s, "#%i", dreg);
                         decoded = true;
                     } break;
                     case 86 : { /* TST */
